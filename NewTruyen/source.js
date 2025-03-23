@@ -14762,7 +14762,7 @@ var _Sources = (() => {
   // src/NewTruyen/NewTruyen.ts
   var NT_DOMAIN = "https://newtruyen6.com";
   var NewTruyenInfo = {
-    version: "1.0.1",
+    version: "1.0.2",
     name: "NewTruyen",
     icon: "icon.ico",
     author: "SakariJun",
@@ -14935,7 +14935,7 @@ var _Sources = (() => {
     }
     async getSearchTags() {
       const request = App.createRequest({
-        url: "https://newtruyen5.com/tim-truyen",
+        url: `${NT_DOMAIN}/tim-truyen`,
         method: "GET"
       });
       const response = await this.requestManager.schedule(request, 1);
