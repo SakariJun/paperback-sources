@@ -14732,37 +14732,37 @@ var _Sources = (() => {
       return images;
     }
     convertTime(timeAgo) {
-      let trimmed = Number((/\d+/.exec(timeAgo) ?? [])[0]);
-      trimmed = trimmed === 0 && timeAgo.includes("a") ? 1 : trimmed;
-      if (timeAgo.includes("gi\xE2y") || timeAgo.includes("secs")) {
-        return new Date(Date.now() - trimmed * 1e3);
-      } else if (timeAgo.includes("ph\xFAt")) {
-        return new Date(Date.now() - trimmed * 6e4);
-      } else if (timeAgo.includes("gi\u1EDD")) {
-        return new Date(Date.now() - trimmed * 36e5);
-      } else if (timeAgo.includes("ng\xE0y")) {
-        return new Date(Date.now() - trimmed * 864e5);
-      } else if (timeAgo.includes("n\u0103m")) {
-        return new Date(Date.now() - trimmed * 31556952e3);
+      const now = /* @__PURE__ */ new Date();
+      const trimmed = Number((/\d+/.exec(timeAgo) ?? [])[0]) || 1;
+      const timeUnits = {
+        "gi\xE2y": (t) => now.setSeconds(now.getSeconds() - t),
+        "ph\xFAt": (t) => now.setMinutes(now.getMinutes() - t),
+        "gi\u1EDD": (t) => now.setHours(now.getHours() - t),
+        "ng\xE0y": (t) => now.setDate(now.getDate() - t),
+        "tu\u1EA7n": (t) => now.setDate(now.getDate() - t * 7),
+        "th\xE1ng": (t) => now.setMonth(now.getMonth() - t),
+        "n\u0103m": (t) => now.setFullYear(now.getFullYear() - t)
+      };
+      for (const unit in timeUnits) {
+        if (timeAgo.includes(unit)) {
+          timeUnits[unit](trimmed);
+          return now;
+        }
       }
       if (timeAgo.includes(":")) {
         const [timePart, datePart] = timeAgo.split(" ");
-        const [day, month, year] = datePart?.split("/") || [];
-        const fullYear = year ? Number(year) : (/* @__PURE__ */ new Date()).getFullYear();
-        return /* @__PURE__ */ new Date(`${month}/${day}/${fullYear} ${timePart}`);
+        const [day2, month2, year2] = datePart.split("/");
+        return /* @__PURE__ */ new Date(`${month2}/${day2}/${year2 || (/* @__PURE__ */ new Date()).getFullYear()} ${timePart}`);
       }
-      const splitDate = timeAgo.split("/");
-      if (splitDate.length === 3) {
-        return /* @__PURE__ */ new Date(`${splitDate[1]}/${splitDate[0]}/${splitDate[2]}`);
-      }
-      return /* @__PURE__ */ new Date();
+      const [day, month, year] = timeAgo.split("/");
+      return /* @__PURE__ */ new Date(`${month}/${day}/${year || (/* @__PURE__ */ new Date()).getFullYear()}`);
     }
   };
 
   // src/NewTruyen/NewTruyen.ts
-  var NT_DOMAIN = "https://newtruyen5.com";
+  var NT_DOMAIN = "https://newtruyen6.com";
   var NewTruyenInfo = {
-    version: "1.0.0",
+    version: "1.0.1",
     name: "NewTruyen",
     icon: "icon.ico",
     author: "SakariJun",
@@ -14783,7 +14783,7 @@ var _Sources = (() => {
       this.parser = new NewTruyenParser();
       this.requestManager = App.createRequestManager({
         requestsPerSecond: 4,
-        requestTimeout: 5e4,
+        requestTimeout: 3e4,
         interceptor: {
           interceptRequest: async (request) => {
             request.headers = {
@@ -14817,7 +14817,7 @@ var _Sources = (() => {
           param = `tim-truyen?sort=11&page=${page}`;
           break;
         default:
-          throw new Error(`Requested to getViewMoreItems for unknown section ID: ${homepageSectionId}`);
+          param = `tim-truyen?page=${page}`;
       }
       const request = App.createRequest({
         url: `${NT_DOMAIN}/${param}`,
@@ -14890,30 +14890,6 @@ var _Sources = (() => {
           sectionID: App.createHomeSection({
             id: "top-all",
             title: "Truy\u1EC7n Hot",
-            containsMoreItems: true,
-            type: import_types2.HomeSectionType.singleRowNormal
-          })
-        },
-        {
-          request: App.createRequest({
-            url: `${NT_DOMAIN}/tim-truyen?status=-1&sort=11`,
-            method: "GET"
-          }),
-          sectionID: App.createHomeSection({
-            id: "top-month",
-            title: "Top Th\xE1ng",
-            containsMoreItems: true,
-            type: import_types2.HomeSectionType.singleRowNormal
-          })
-        },
-        {
-          request: App.createRequest({
-            url: `${NT_DOMAIN}/tim-truyen?status=-1&sort=13`,
-            method: "GET"
-          }),
-          sectionID: App.createHomeSection({
-            id: "top-day",
-            title: "Top Ng\xE0y",
             containsMoreItems: true,
             type: import_types2.HomeSectionType.singleRowNormal
           })
