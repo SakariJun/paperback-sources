@@ -14730,21 +14730,21 @@ var _Sources = (() => {
         const genreName = $2(element).text().trim();
         console.log(genreName);
         if (genreId && genreName && genreId !== "") {
-          genres.push({ id: genreId, label: genreName });
+          genres.push({ id: `genre-${genreId}`, label: genreName });
         }
       });
       $2("#select-minchapter option").each((_, element) => {
         const minchapterId = $2(element).attr("value");
         const minchapterName = $2(element).text().trim();
         if (minchapterId && minchapterName && minchapterId !== "") {
-          minchapters.push({ id: minchapterId, label: minchapterName });
+          minchapters.push({ id: `minchapter-${minchapterId}`, label: minchapterName });
         }
       });
       $2("#select-sort option").each((_, element) => {
         const sortId = $2(element).attr("value");
         const sortName = $2(element).text().trim();
         if (sortId && sortName && sortId !== "") {
-          sorts.push({ id: sortId, label: sortName });
+          sorts.push({ id: `sort-${sortId}`, label: sortName });
         }
       });
       return [
@@ -14809,7 +14809,7 @@ var _Sources = (() => {
   // src/HentaiVn/HentaiVn.ts
   var DOMAIN = "https://hentaivnx.com";
   var HentaiVnInfo = {
-    version: "1.0.0",
+    version: "1.0.1",
     name: "HentaiVN",
     icon: "icon.png",
     author: "SakariJun",
