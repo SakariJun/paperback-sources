@@ -14760,9 +14760,9 @@ var _Sources = (() => {
   };
 
   // src/NewTruyen/NewTruyen.ts
-  var NT_DOMAIN = "https://newtruyen7.com";
+  var NT_DOMAIN = "https://newtruyen9.com";
   var NewTruyenInfo = {
-    version: "1.0.3",
+    version: "1.0.4",
     name: "NewTruyen",
     icon: "icon.ico",
     author: "SakariJun",
@@ -14856,7 +14856,7 @@ var _Sources = (() => {
       const response = await this.requestManager.schedule(request, 1);
       this.CloudFlareError(response.status);
       if (!response.data || response.data.trim() === "") {
-        for (let i = 8; i <= 12; i++) {
+        for (let i = 10; i <= 13; i++) {
           const domain = `https://newtruyen${i}.com`;
           const request2 = App.createRequest({
             url: `${domain}/Story/ListChapterByStoryID`,
@@ -14864,9 +14864,9 @@ var _Sources = (() => {
             data: `StoryID=${storyId}`
           });
           const res = await this.requestManager.schedule(request2, 1);
-          this.CloudFlareError(response.status);
+          this.CloudFlareError(res.status);
           if (res.data && res.data.trim() !== "") {
-            const $3 = load(response.data);
+            const $3 = load(res.data);
             return this.parser.parseChapters($3, mangaId);
           }
         }
