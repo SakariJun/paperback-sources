@@ -14760,16 +14760,16 @@ var _Sources = (() => {
   };
 
   // src/NewTruyen/NewTruyen.ts
-  var NT_DOMAIN = "https://newtruyen9.com";
+  var NT_DOMAIN = "https://newtruyen10.com";
   var NewTruyenInfo = {
-    version: "1.0.4",
+    version: "1.1.0",
     name: "NewTruyen",
     icon: "icon.ico",
     author: "SakariJun",
     authorWebsite: "https://github.com/SakariJun",
     description: "Extension that pulls manga from NewTruyenHot",
     contentRating: import_types2.ContentRating.MATURE,
-    websiteBaseURL: NT_DOMAIN,
+    websiteBaseURL: "https://newtruyenhot.com",
     sourceTags: [
       {
         text: "Vietnamese",
@@ -14781,6 +14781,7 @@ var _Sources = (() => {
   var NewTruyen = class {
     constructor() {
       this.parser = new NewTruyenParser();
+      this.stateManager = App.createSourceStateManager();
       this.requestManager = App.createRequestManager({
         requestsPerSecond: 4,
         requestTimeout: 3e4,
@@ -14788,7 +14789,7 @@ var _Sources = (() => {
           interceptRequest: async (request) => {
             request.headers = {
               ...request.headers ?? {},
-              "referer": `${NT_DOMAIN}/`,
+              "referer": `${await this.getNTDomain()}/`,
               "user-agent": await this.requestManager.getDefaultUserAgent()
             };
             return request;
@@ -14798,6 +14799,15 @@ var _Sources = (() => {
           }
         }
       });
+    }
+    async initializeState() {
+      this.setNTDomain(NT_DOMAIN);
+    }
+    async setNTDomain(domain) {
+      await this.stateManager.store("NT_DOMAIN", domain);
+    }
+    async getNTDomain() {
+      return await this.stateManager.retrieve("NT_DOMAIN") || NT_DOMAIN;
     }
     async getViewMoreItems(homepageSectionId, metadata) {
       if (metadata?.completed) return metadata;
@@ -14820,7 +14830,7 @@ var _Sources = (() => {
           param = `tim-truyen?page=${page}`;
       }
       const request = App.createRequest({
-        url: `${NT_DOMAIN}/${param}`,
+        url: `${await this.getNTDomain()}/${param}`,
         method: "GET"
       });
       const response = await this.requestManager.schedule(request, 1);
@@ -14833,12 +14843,12 @@ var _Sources = (() => {
         metadata
       });
     }
-    getMangaShareUrl(mangaId) {
-      return `${NT_DOMAIN}/truyen-tranh/${mangaId}`;
+    async getMangaShareUrl(mangaId) {
+      return `${await this.getNTDomain()}/truyen-tranh/${mangaId}`;
     }
     async getMangaDetails(mangaId) {
       const request = App.createRequest({
-        url: `${NT_DOMAIN}/truyen-tranh/${mangaId}`,
+        url: `${await this.getNTDomain()}/truyen-tranh/${mangaId}`,
         method: "GET"
       });
       const response = await this.requestManager.schedule(request, 1);
@@ -14848,24 +14858,28 @@ var _Sources = (() => {
     }
     async getChapters(mangaId) {
       const storyId = mangaId.match(/-(\d+)$/)?.[1] ?? "";
+      const domain = await this.getNTDomain();
       const request = App.createRequest({
-        url: `${NT_DOMAIN}/Story/ListChapterByStoryID`,
+        url: `${domain}/Story/ListChapterByStoryID`,
         method: "POST",
         data: `StoryID=${storyId}`
       });
       const response = await this.requestManager.schedule(request, 1);
       this.CloudFlareError(response.status);
       if (!response.data || response.data.trim() === "") {
-        for (let i = 10; i <= 13; i++) {
-          const domain = `https://newtruyen${i}.com`;
+        const match = domain.match(/newtruyen(\d+)\.com/);
+        const index2 = match ? parseInt(match[1], 10) : 10;
+        for (let i = index2 + 1; i <= index2 + 4; i++) {
+          const domain2 = `https://newtruyen${i}.com`;
           const request2 = App.createRequest({
-            url: `${domain}/Story/ListChapterByStoryID`,
+            url: `${domain2}/Story/ListChapterByStoryID`,
             method: "POST",
             data: `StoryID=${storyId}`
           });
           const res = await this.requestManager.schedule(request2, 1);
           this.CloudFlareError(res.status);
           if (res.data && res.data.trim() !== "") {
+            this.setNTDomain(domain2);
             const $3 = load(res.data);
             return this.parser.parseChapters($3, mangaId);
           }
@@ -14876,7 +14890,7 @@ var _Sources = (() => {
     }
     async getChapterDetails(mangaId, chapterId) {
       const request = App.createRequest({
-        url: `${NT_DOMAIN}/truyen-tranh/${mangaId}/chapter/${chapterId}`,
+        url: `${await this.getNTDomain()}/truyen-tranh/${mangaId}/chapter/${chapterId}`,
         method: "GET"
       });
       const response = await this.requestManager.schedule(request, 1);
@@ -14888,7 +14902,7 @@ var _Sources = (() => {
       const sections = [
         {
           request: App.createRequest({
-            url: `${NT_DOMAIN}/tim-truyen?status=-1&sort=0`,
+            url: `${await this.getNTDomain()}/tim-truyen?status=-1&sort=0`,
             method: "GET"
           }),
           sectionID: App.createHomeSection({
@@ -14900,7 +14914,7 @@ var _Sources = (() => {
         },
         {
           request: App.createRequest({
-            url: `${NT_DOMAIN}/tim-truyen?status=-1&sort=10`,
+            url: `${await this.getNTDomain()}/tim-truyen?status=-1&sort=10`,
             method: "GET"
           }),
           sectionID: App.createHomeSection({
@@ -14931,12 +14945,12 @@ var _Sources = (() => {
       let request;
       if (query.title) {
         request = App.createRequest({
-          url: `${NT_DOMAIN}/tim-truyen?keyword=${encodeURI(query.title)}&page=${page}`,
+          url: `${await this.getNTDomain()}/tim-truyen?keyword=${encodeURI(query.title)}&page=${page}`,
           method: "GET"
         });
       } else {
         request = App.createRequest({
-          url: `${NT_DOMAIN}/tim-truyen/${query?.includedTags?.map((x) => x.id)[0]}?page=${page}`,
+          url: `${await this.getNTDomain()}/tim-truyen/${query?.includedTags?.map((x) => x.id)[0]}?page=${page}`,
           method: "GET"
         });
       }
@@ -14951,7 +14965,7 @@ var _Sources = (() => {
     }
     async getSearchTags() {
       const request = App.createRequest({
-        url: `${NT_DOMAIN}/tim-truyen`,
+        url: `${await this.getNTDomain()}/tim-truyen`,
         method: "GET"
       });
       const response = await this.requestManager.schedule(request, 1);
@@ -14967,10 +14981,10 @@ Please go to the homepage of <${NewTruyenInfo.name}> and press the cloud icon.`)
     }
     async getCloudflareBypassRequestAsync() {
       return App.createRequest({
-        url: NT_DOMAIN,
+        url: await this.getNTDomain(),
         method: "GET",
         headers: {
-          "referer": `${NT_DOMAIN}/`,
+          "referer": `${await this.getNTDomain()}/`,
           "user-agent": await this.requestManager.getDefaultUserAgent()
         }
       });
