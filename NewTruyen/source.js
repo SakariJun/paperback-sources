@@ -15610,7 +15610,7 @@ var _Sources = (() => {
         if ($2(element).attr("id") === "page_watermark_bottom") {
           return;
         }
-        const imageUrl = $2(element).attr("src") ?? $2(element).attr("data-src") ?? $2(element).attr("data-lazy-src");
+        const imageUrl = $2(element).find("img[data-index]").attr("src") ?? $2(element).attr("data-src") ?? $2(element).attr("data-lazy-src");
         if (imageUrl) {
           images.push(encodeURI(imageUrl.trim()));
         }
@@ -15666,7 +15666,7 @@ var _Sources = (() => {
   // src/NewTruyen/NewTruyen.ts
   var NT_DOMAIN = "https://newtruyenhot.com";
   var NewTruyenInfo = {
-    version: "1.2.1",
+    version: "1.2.2",
     name: "NewTruyen",
     icon: "icon.ico",
     author: "SakariJun",
